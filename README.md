@@ -48,7 +48,7 @@ Seven public multivariate time-series benchmarks are used in the paper. **Datase
 
 ### ☁️ Download the datasets
 
-**🔗 Google Drive download link:** `GOOGLE_DRIVE_LINK_TO_BE_ADDED`
+**🔗 Google Drive download link:**   [Google Drive](https://drive.google.com/file/d/1P6ZQY1U1NICWmlpXoDlK-fiu6Kjt_KRb/view?usp=sharing)
 
 1. 📥 Open the Google Drive link above and download the dataset archive or folder.
 2. 📂 Extract its contents into a folder named `datasets/` at the **repository root** (alongside `code/` and `requirements.txt`).
