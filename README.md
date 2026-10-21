@@ -67,7 +67,7 @@ Seven public multivariate time-series benchmarks are used in the paper. **Datase
 
 ## 🤗 Offline GPT-2 Checkpoint
 
-The GHEF code loads GPT-2 from a **local checkpoint folder**. Because the pretrained weights are too large for this GitHub release, **download the six files manually from Hugging Face** and save them inside `gpt2_offline/`.
+The GHEF code loads GPT-2 from a **local checkpoint folder**. **Download the six files manually from Hugging Face** and save them inside `gpt2_offline/`.
 
 **🌐 Official model files:** **[openai-community/gpt2 — Hugging Face](https://huggingface.co/openai-community/gpt2/tree/main)**
 
@@ -96,11 +96,9 @@ After downloading, your **local** folder must look like this:
 └── 🔠 vocab.json
 ```
 
-> ✅ **Important:** `model.safetensors` must be the actual downloaded model file, not a Git LFS/Xet pointer or an HTML page. You do not need to download `pytorch_model.bin` in addition to `model.safetensors`. The current code uses `GPT2Model.from_pretrained(..., local_files_only=True)`, so it **will not download missing files automatically**. The publicly hosted GPT-2 checkpoint is a practical default; exact reproduction of archived experiments additionally depends on matching their original checkpoint and configuration.
-
 ## 🗂️ Repository Structure
 
-The **GitHub checkout** contains the Python implementation and documentation. The two large directories shown below are created **locally after download**, not tracked in Git.
+The **GitHub checkout** contains the Python implementation and documentation.
 
 ```text
 GHEF/
@@ -139,8 +137,6 @@ GHEF/
 └── 📂 outputs/                                 # Generated experiment outputs (local only)
 ```
 
-> 📝 **GitHub vs local:** `code/`, `README.md`, `requirements.txt`, and `.gitignore` are committed. `datasets/`, `gpt2_offline/`, and `outputs/` exist on the researcher's machine after setup and are excluded from version control. All commands below assume they are run from the project root.
-
 ## ⚙️ Requirements
 
 **🖥️ Recommended environment**
@@ -158,8 +154,6 @@ python -m venv .venv
 source .venv/bin/activate   # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 ```
-
-> For CUDA-specific PyTorch wheels, follow the official [PyTorch installation selector](https://pytorch.org/get-started/locally/) before installing the remaining dependencies. `requirements.txt` specifies practical version ranges; it is not an exact lockfile for the environment used to obtain the paper's archived results.
 
 ## 🚀 Quick Start
 
