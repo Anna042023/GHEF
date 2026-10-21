@@ -26,27 +26,6 @@ The reported forecasting study covers **seven benchmark datasets** and **four pr
 
 The GHEF forecasting pipeline has three components:
 
-```text
-📥 Historical Multivariate Time Series
-                  │
-                  ▼
-🔹 GSA — Granulation and Semantic Adaptation
-   Local trend fitting → MT-FIG descriptors → GPT-2 adaptation
-                  │
-                  ▼
-🔹 HDL — Hypergraph Dependency Learning
-   Trend-based association scores → Neighbor selection
-   → Incidence-based relational features
-                  │
-                  ▼
-🔹 HGF — Hypergraph-Guided Fusion
-   Temporal features + Hypergraph features
-   → Cross-attention fusion → Future trend/point prediction
-                  │
-                  ▼
-📊 Multi-Horizon Forecasts (MAE / MSE)
-```
-
 - **📉 GSA:** Represents local trends with multi-trend fuzzy information granules (MT-FIGs), including slope, intercept, fluctuation, and duration.
 - **🔗 HDL:** Builds channel-dependency representations from trend-based affinities and propagates features through a hypergraph.
 - **🧠 HGF:** Fuses temporal and relational representations for multivariate forecasting, using an offline GPT-2 backbone and trainable adaptation components.
@@ -89,8 +68,7 @@ Seven public multivariate time-series benchmarks are used in the paper. **Datase
 ├── ⏱️ ETTm2/           └── 📄 ETTm2.csv
 ├── 🌦️ weather/         └── 📄 weather.csv
 ├── ⚡ electricity/     └── 📄 electricity.csv
-├── 🚦 traffic/         └── 📄 traffic.csv
-└── 📈 M4/              # Additional data; not part of the main seven benchmarks
+└── 🚦 traffic/         └── 📄 traffic.csv
 ```
 
 The input loader expects the dataset folder and CSV basename to match exactly, including capitalization (e.g., `datasets/ETTh1/ETTh1.csv`). If the downloaded archive contains an extra outer folder, move its contents so these paths exist.
@@ -136,7 +114,6 @@ The **GitHub checkout** contains the Python implementation and documentation. Th
 GHEF/
 ├── 📘 README.md                                # Documentation and download instructions
 ├── 📦 requirements.txt                         # Python package requirements
-├── 🚫 .gitignore                               # Excludes large local folders and outputs
 │
 ├── 💻 code/                                    # Tracked GHEF source files
 │   ├── 🚀 main.py                              # Training and evaluation entry point
@@ -157,8 +134,7 @@ GHEF/
 │   ├── ⏱️ ETTm2/                               # 📄 ETTm2.csv
 │   ├── 🌦️ weather/                             # 📄 weather.csv
 │   ├── ⚡ electricity/                         # 📄 electricity.csv
-│   ├── 🚦 traffic/                             # 📄 traffic.csv
-│   └── 📈 M4/                                  # Optional; not in main benchmarks
+│   └── 🚦 traffic/                             # 📄 traffic.csv
 │
 ├── 🤗 gpt2_offline/                            # 📥 DOWNLOAD FROM HUGGING FACE (local only)
 │   ├── ⚙️ config.json                          # GPT-2 configuration
@@ -326,30 +302,3 @@ The paper and the present code snapshot are **not configuration-identical**. Bef
 6. **🗄️ Audit scope:** The independent finite-graph and SQLite audit programs referenced in the paper are **not included** in the supplied 10-file code archive.
 
 Accordingly, the included commands document **how to run this released code**, while the archived tables in the paper should be read as separately reported evidence.
-
-## ☁️ Large Files and GitHub Storage
-
-**🚫 Do not upload `datasets/` or `gpt2_offline/` to this GitHub repository.** They are intentionally distributed separately to keep the code repository small and easy to clone.
-
-- 📊 **Datasets:** Download from the [dataset download instructions](#-datasets) (link provided by the repository owner).
-- 🤗 **GPT-2:** Download the six required files from [Hugging Face](https://huggingface.co/openai-community/gpt2/tree/main).
-- 🚫 **Git exclusion:** `.gitignore` excludes `/datasets/`, `/gpt2_offline/`, checkpoints, and generated outputs. Verify that the large files are not being staged with `git status` before pushing.
-
-**💡 No Git LFS installation is required** for the recommended setup, because pretrained weights and datasets are not committed to the repository.
-
-## 📝 Citation
-
-If this repository is useful for your research, please cite the corresponding manuscript:
-
-```bibtex
-@article{wang2027windowscoped,
-  title   = {Window-Scoped Trend Relations for Multivariate Time-Series Analytics},
-  author  = {Wang, Anna and Zhang, Chao and Li, Wentao and Ding, Weiping and Pedersen, Torben Bach and Aggarwal, Charu C. and Pedrycz, Witold},
-  journal = {Proceedings of the VLDB Endowment},
-  year    = {2027}
-}
-```
-
----
-
-**📬 Research use:** This repository provides the GHEF forecasting code, the expected benchmark data layout, and instructions for local GPT-2 loading. Refer to the manuscript for the logical query contract, structural-audit methodology, and archived evaluation results.
