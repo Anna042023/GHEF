@@ -9,7 +9,7 @@
 
 This repository contains the **GHEF forecasting implementation** associated with the paper **“Window-Scoped Trend Relations for Multivariate Time-Series Analytics.”** The paper studies how historical time windows define derived trend records, channel affinities, and group memberships, using GHEF as a forecasting consumer.
 
-**🔗 Navigation:** [Contributions](#-main-contributions) · [Method](#-method-overview) · [Datasets](#-datasets) · [GPT-2 Download](#-offline-gpt-2-checkpoint) · [Structure](#-repository-structure) · [Requirements](#-requirements) · [Usage](#-quick-start) · [Reproducibility](#-reproducibility-notes)
+**🔗 Navigation:** [Contributions](#-main-contributions) · [Method](#-method-overview) · [Datasets](#-datasets) · [GPT-2 Download](#-offline-gpt-2-checkpoint) · [Structure](#repository-structure) · [Requirements](#requirements) · [Usage](#-quick-start)  · [Outputs](#outputs)
 
 
 > 📦 **Lightweight GitHub release:** This repository provides the source code and instructions only. The large `datasets/` and `gpt2_offline/` directories are **not included in GitHub**. Download them separately following the instructions below before running any experiments.
@@ -96,6 +96,8 @@ After downloading, your **local** folder must look like this:
 └── 🔠 vocab.json
 ```
 
+<a id="repository-structure"></a>
+
 ## 🗂️ Repository Structure
 
 The **GitHub checkout** contains the Python implementation and documentation.
@@ -137,6 +139,8 @@ GHEF/
 └── 📂 outputs/                                 # Generated experiment outputs (local only)
 ```
 
+<a id="requirements"></a>
+
 ## ⚙️ Requirements
 
 **🖥️ Recommended environment**
@@ -159,12 +163,7 @@ pip install -r requirements.txt
 
 ### 1. 📥 Get the repository
 
-Clone the GitHub repository (replace the placeholder with your actual repository URL), or download its source-code ZIP:
-
-```bash
-git clone <YOUR_GITHUB_REPOSITORY_URL>
-cd GHEF
-```
+Clone the GitHub repository.
 
 ### 2. ⚙️ Install dependencies
 
@@ -176,19 +175,13 @@ source .venv/bin/activate   # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-### 3. 📊 Download the datasets from Google Drive
+### 3. 📊 Download the datasets
 
 Follow [**dataset download instructions**](#-datasets) above. Place all seven benchmark CSV files under their matching `datasets/<dataset>/` subfolders.
 
-### 4. 🤗 Download the offline GPT-2 files from Hugging Face
+### 4. 🤗 Download the offline GPT-2 files
 
 Follow [**🤗 Offline GPT-2 Checkpoint**](#-offline-gpt-2-checkpoint) above. Download the six files listed there and save them directly inside `gpt2_offline/`. Do **not** nest another `gpt2/` folder inside it.
-
-Before running, you can check that the local checkpoint can be loaded:
-
-```bash
-python -c "from transformers import GPT2Model; GPT2Model.from_pretrained('./gpt2_offline', local_files_only=True); print('Local GPT-2 ready')"
-```
 
 ### 5. ▶️ Run one dataset and one horizon
 
@@ -205,8 +198,6 @@ python code/main.py \
   --device cuda
 ```
 
-For CPU-only use, replace `--device cuda` with `--device cpu` (training will be substantially slower), and consider `--num_workers 0 --no_amp`.
-
 ### 6. 🧪 Run all seven datasets and four horizons
 
 ```bash
@@ -221,28 +212,7 @@ python code/main.py \
   --device cuda
 ```
 
-These commands execute the released code, but they do **not** guarantee exact reproduction of the paper's archived measurements. In particular, the current code contains dataset-level overrides; see [Reproducibility Notes](#-reproducibility-notes).
-
-### 7. 🔧 Common command-line arguments
-
-| ⚙️ Argument | 📝 Meaning | 💡 Code default |
-|:--|:--|:--|
-| `--datasets` | One or more benchmark names | All seven benchmarks |
-| `--horizons` | Forecast lengths | `96 192 336 720` |
-| `--lookback` | Historical sequence length | `512` |
-| `--batch` | Batch size | `32` |
-| `--lr` | Learning rate | `2e-4` |
-| `--epochs` | Maximum Stage-3 epochs | `150` |
-| `--stage1_epochs` | Stage-1 epochs | `20` |
-| `--stage2_epochs` | Stage-2 epochs | `20` |
-| `--patience` | Early-stopping patience | `10` |
-| `--topk` | Neighbor-selection budget | `16` |
-| `--device` | Device | `cuda` |
-| `--no_stage1` / `--no_stage2` / `--no_stage3` | Disable selected training stages | All enabled |
-
-For settings not exposed on the command line, see [`code/config.py`](code/config.py). Disabling a stage does **not** load a pretrained training-stage checkpoint automatically.
-
-### 8. 🧱 Optional MT-FIG precomputation
+### 7. 🧱 Optional MT-FIG precomputation
 
 ```bash
 python code/precompute_granules.py \
@@ -253,7 +223,7 @@ python code/precompute_granules.py \
   --device cuda
 ```
 
-The utility writes cached `.pt` files separately; the training script does not require the precomputed cache.
+<a id="outputs"></a>
 
 ## 📁 Outputs and Evaluation
 
@@ -275,16 +245,3 @@ After running the main script, prediction errors and checkpoints are written und
 - 💾 `results_<dataset>.json` stores per-horizon scores and their arithmetic average.
 - 🗃️ `results_all.json` consolidates the evaluated datasets.
 - 🧠 `stage*.pt` checkpoints store the selected validation-best model weights for each enabled training stage.
-
-## 🔬 Reproducibility Notes
-
-The paper and the present code snapshot are **not configuration-identical**. Before attempting a matched replication, check at least these differences:
-
-1. **📏 Lookback:** The paper reports `96`; the code defaults to `512` and overrides the lookback to `192` for `electricity` and `96` for `traffic`.
-2. **🧠 GPT-2 layers:** The paper describes the first **6** layers; `code/config.py` currently sets `gpt2_use_first_n_layers = 8`. This setting is not a CLI argument.
-3. **🕒 Training budget:** The paper reports up to **100** epochs; the current Stage-3 code default is **150**, configurable via `--epochs`.
-4. **📐 Non-ETT splitting:** The code uses a **70% / 10% / 20%** train/validation/test split for non-ETT datasets, whereas the paper's reported non-ETT split sizes correspond to approximately **70% / 20% / 10%**.
-5. **🕸️ Group construction:** The current code computes a discretized, candidate-pruned association approximation and weighted incidence; it does not implement the full logical clique-enumeration policy analyzed in the paper.
-6. **🗄️ Audit scope:** The independent finite-graph and SQLite audit programs referenced in the paper are **not included** in the supplied 10-file code archive.
-
-Accordingly, the included commands document **how to run this released code**, while the archived tables in the paper should be read as separately reported evidence.
