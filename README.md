@@ -20,7 +20,7 @@ This repository contains the **GHEF forecasting implementation** associated with
 - **🕸️ Explicit group semantics.** Separates trend-based pair scoring, mutual-neighbor selection, and group enumeration. The paper shows why the same pair support need not imply the same hypergraph incidence relation and analyzes the work associated with relation construction.
 - **🧪 Separated empirical evidence.** Connects the archived GHEF forecasting results with independent finite-graph checks and SQLite experiments on synthetic audit records, without treating those checks as end-to-end GHEF query acceleration.
 
-The reported forecasting study covers **seven benchmark datasets** and **four prediction horizons**. Relative to CVC, the archived results show lower MAE in **22 of 28** dataset–horizon comparisons, with one tie and five losses. These are **reported paper results**, not newly reproduced measurements from this repository.
+The reported forecasting study covers **seven benchmark datasets** and **four prediction horizons**. Relative to CVC, the archived results show lower MAE in **22 of 28** dataset–horizon comparisons, with one tie and five losses.
 
 ## 🧩 Method Overview
 
@@ -29,12 +29,10 @@ The GHEF forecasting pipeline has three components:
 - **📉 GSA:** Represents local trends with multi-trend fuzzy information granules (MT-FIGs), including slope, intercept, fluctuation, and duration.
 - **🔗 HDL:** Builds channel-dependency representations from trend-based affinities and propagates features through a hypergraph.
 - **🧠 HGF:** Fuses temporal and relational representations for multivariate forecasting, using an offline GPT-2 backbone and trainable adaptation components.
-
-> **Scope:** The paper specifies logical trend/affinity/membership relations and discusses group-enumeration policies. The supplied forecasting code uses an approximate, binned association computation and a weighted per-channel incidence construction; it is **not** a native database engine or a complete implementation of the paper's independent CPU/SQLite audits.
-
+  
 ## 📚 Datasets
 
-Seven public multivariate time-series benchmarks are used in the paper. **Datasets are distributed separately via Google Drive, not included in this GitHub repository.** The forecasting code loads a CSV file for each dataset from `datasets/<dataset>/<dataset>.csv`.
+Seven public multivariate time-series benchmarks are used in the paper. **Datasets are distributed separately via Google Drive, not included in this GitHub repository.** 
 
 | 📁 Dataset | 🏷️ Domain | ⏱️ Sampling interval | 🔢 Variables |
 |:--|:--|:--|--:|
@@ -48,13 +46,9 @@ Seven public multivariate time-series benchmarks are used in the paper. **Datase
 
 **🎯 Forecast settings in the paper:** lookback length **96**, with horizons **96 / 192 / 336 / 720**. The reported error metrics are **MAE** and **MSE** (lower is better).
 
-**📌 Note:** Your `datasets/` directory also contains `M4/`. It is retained in the folder layout below, but **M4 is not one of the seven datasets in the paper's main benchmark**, and the provided training entry point does not include it by default.
-
-### ☁️ Download the datasets (Google Drive)
+### ☁️ Download the datasets
 
 **🔗 Google Drive download link:** `GOOGLE_DRIVE_LINK_TO_BE_ADDED`
-
-> 📌 **Repository owner:** Replace `GOOGLE_DRIVE_LINK_TO_BE_ADDED` with the Google Drive sharing URL before publishing this README. The datasets are **not** in GitHub because of their size.
 
 1. 📥 Open the Google Drive link above and download the dataset archive or folder.
 2. 📂 Extract its contents into a folder named `datasets/` at the **repository root** (alongside `code/` and `requirements.txt`).
@@ -70,8 +64,6 @@ Seven public multivariate time-series benchmarks are used in the paper. **Datase
 ├── ⚡ electricity/     └── 📄 electricity.csv
 └── 🚦 traffic/         └── 📄 traffic.csv
 ```
-
-The input loader expects the dataset folder and CSV basename to match exactly, including capitalization (e.g., `datasets/ETTh1/ETTh1.csv`). If the downloaded archive contains an extra outer folder, move its contents so these paths exist.
 
 ## 🤗 Offline GPT-2 Checkpoint
 
