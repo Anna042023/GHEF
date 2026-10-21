@@ -7,7 +7,7 @@ class ExpConfig:
     # =======================
     # Data / Loader
     # =======================
-    data_root: str = "/data/LiFeiFei/GHEF/datasets/"
+    data_root: str = "/data/xxx/GHEF/datasets/"
     datasets: Optional[List[str]] = None
     split_ratio: Tuple[float, float, float] = (0.7, 0.1, 0.2)  # train/val/test
     lookback: int = 512
