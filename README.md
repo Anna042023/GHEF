@@ -9,7 +9,10 @@
 
 This repository contains the **GHEF forecasting implementation** associated with the paper **“Window-Scoped Trend Relations for Multivariate Time-Series Analytics.”** The paper studies how historical time windows define derived trend records, channel affinities, and group memberships, using GHEF as a forecasting consumer.
 
-**🔗 Navigation:** [Contributions](#-main-contributions) · [Method](#-method-overview) · [Datasets](#-datasets) · [Structure](#-repository-structure) · [Requirements](#-requirements) · [Usage](#-quick-start) · [Reproducibility](#-reproducibility-notes)
+**🔗 Navigation:** [Contributions](#-main-contributions) · [Method](#-method-overview) · [Datasets](#-datasets) · [GPT-2 Download](#-offline-gpt-2-checkpoint) · [Structure](#-repository-structure) · [Requirements](#-requirements) · [Usage](#-quick-start) · [Reproducibility](#-reproducibility-notes)
+
+
+> 📦 **Lightweight GitHub release:** This repository provides the source code and instructions only. The large `datasets/` and `gpt2_offline/` directories are **not included in GitHub**. Download them separately following the instructions below before running any experiments.
 
 ## 🌟 Main Contributions
 
@@ -52,7 +55,7 @@ The GHEF forecasting pipeline has three components:
 
 ## 📚 Datasets
 
-Seven public multivariate time-series benchmarks are used in the paper. The forecasting code loads a CSV file for each dataset from `datasets/<dataset>/<dataset>.csv`.
+Seven public multivariate time-series benchmarks are used in the paper. **Datasets are distributed separately via Google Drive, not included in this GitHub repository.** The forecasting code loads a CSV file for each dataset from `datasets/<dataset>/<dataset>.csv`.
 
 | 📁 Dataset | 🏷️ Domain | ⏱️ Sampling interval | 🔢 Variables |
 |:--|:--|:--|--:|
@@ -68,53 +71,107 @@ Seven public multivariate time-series benchmarks are used in the paper. The fore
 
 **📌 Note:** Your `datasets/` directory also contains `M4/`. It is retained in the folder layout below, but **M4 is not one of the seven datasets in the paper's main benchmark**, and the provided training entry point does not include it by default.
 
+### ☁️ Download the datasets (Google Drive)
+
+**🔗 Google Drive download link:** `GOOGLE_DRIVE_LINK_TO_BE_ADDED`
+
+> 📌 **Repository owner:** Replace `GOOGLE_DRIVE_LINK_TO_BE_ADDED` with the Google Drive sharing URL before publishing this README. The datasets are **not** in GitHub because of their size.
+
+1. 📥 Open the Google Drive link above and download the dataset archive or folder.
+2. 📂 Extract its contents into a folder named `datasets/` at the **repository root** (alongside `code/` and `requirements.txt`).
+3. ✅ Confirm that the directory layout matches the filenames expected by the scripts, for example:
+
+```text
+📊 datasets/
+├── 🌡️ ETTh1/           └── 📄 ETTh1.csv
+├── 🌡️ ETTh2/           └── 📄 ETTh2.csv
+├── ⏱️ ETTm1/           └── 📄 ETTm1.csv
+├── ⏱️ ETTm2/           └── 📄 ETTm2.csv
+├── 🌦️ weather/         └── 📄 weather.csv
+├── ⚡ electricity/     └── 📄 electricity.csv
+├── 🚦 traffic/         └── 📄 traffic.csv
+└── 📈 M4/              # Additional data; not part of the main seven benchmarks
+```
+
+The input loader expects the dataset folder and CSV basename to match exactly, including capitalization (e.g., `datasets/ETTh1/ETTh1.csv`). If the downloaded archive contains an extra outer folder, move its contents so these paths exist.
+
+## 🤗 Offline GPT-2 Checkpoint
+
+The GHEF code loads GPT-2 from a **local checkpoint folder**. Because the pretrained weights are too large for this GitHub release, **download the six files manually from Hugging Face** and save them inside `gpt2_offline/`.
+
+**🌐 Official model files:** **[openai-community/gpt2 — Hugging Face](https://huggingface.co/openai-community/gpt2/tree/main)**
+
+### 📥 Files to download
+
+Click a file below, then select **Download** on its Hugging Face page. Keep the original filenames.
+
+| 📁 File | 📝 Purpose | 🔗 Download page |
+|:--|:--|:--|
+| ⚙️ `config.json` | GPT-2 architecture settings | [config.json](https://huggingface.co/openai-community/gpt2/blob/main/config.json) |
+| 🧩 `merges.txt` | Byte-pair encoding merge rules | [merges.txt](https://huggingface.co/openai-community/gpt2/blob/main/merges.txt) |
+| 🧠 `model.safetensors` | Pretrained GPT-2 model weights | [model.safetensors](https://huggingface.co/openai-community/gpt2/blob/main/model.safetensors) |
+| 🔤 `tokenizer.json` | Fast-tokenizer definition | [tokenizer.json](https://huggingface.co/openai-community/gpt2/blob/main/tokenizer.json) |
+| 🔧 `tokenizer_config.json` | Tokenizer configuration | [tokenizer_config.json](https://huggingface.co/openai-community/gpt2/blob/main/tokenizer_config.json) |
+| 🔠 `vocab.json` | GPT-2 tokenizer vocabulary | [vocab.json](https://huggingface.co/openai-community/gpt2/blob/main/vocab.json) |
+
+After downloading, your **local** folder must look like this:
+
+```text
+🤗 gpt2_offline/
+├── ⚙️ config.json
+├── 🧩 merges.txt
+├── 🧠 model.safetensors
+├── 🔤 tokenizer.json
+├── 🔧 tokenizer_config.json
+└── 🔠 vocab.json
+```
+
+> ✅ **Important:** `model.safetensors` must be the actual downloaded model file, not a Git LFS/Xet pointer or an HTML page. You do not need to download `pytorch_model.bin` in addition to `model.safetensors`. The current code uses `GPT2Model.from_pretrained(..., local_files_only=True)`, so it **will not download missing files automatically**. The publicly hosted GPT-2 checkpoint is a practical default; exact reproduction of archived experiments additionally depends on matching their original checkpoint and configuration.
+
 ## 🗂️ Repository Structure
 
-The GitHub repository uses three main folders: **`code/`** for the Python implementation, **`datasets/`** for time-series data, and **`gpt2_offline/`** for the local language-model checkpoint. Icons identify the roles of individual files and dataset types.
+The **GitHub checkout** contains the Python implementation and documentation. The two large directories shown below are created **locally after download**, not tracked in Git.
 
 ```text
 GHEF/
-├── 📘 README.md                                # Project introduction, contributions, and usage
-├── 📦 requirements.txt                         # Python dependency list
-├── 🔗 .gitattributes                           # Git LFS tracking rules
-├── 🚫 .gitignore                               # Ignored caches, outputs, and local files
+├── 📘 README.md                                # Documentation and download instructions
+├── 📦 requirements.txt                         # Python package requirements
+├── 🚫 .gitignore                               # Excludes large local folders and outputs
 │
-├── 💻 code/                                    # GHEF source code (from GHEF.zip)
-│   ├── 🚀 main.py                              # Main training / evaluation entry point
-│   ├── ⚙️ config.py                            # Model parameters and experiment settings
-│   ├── 📥 data_utils.py                        # Dataset loading, splitting, normalization
-│   ├── 🧠 model_ghef.py                        # GHEF model and local GPT-2 backbone
-│   ├── 📈 mtfig.py                             # MT-FIG construction and embedding
-│   ├── 🕸️ mic_hypergraph.py                    # Trend affinities and hypergraph incidence
-│   ├── 🔗 hypergraph_layers.py                 # Hypergraph neural propagation layers
-│   ├── 🎯 losses.py                            # Forecasting and auxiliary objectives
-│   ├── 🏋️ trainer.py                           # Multi-stage training and evaluation
-│   └── 🧱 precompute_granules.py               # Optional MT-FIG precomputation utility
+├── 💻 code/                                    # Tracked GHEF source files
+│   ├── 🚀 main.py                              # Training and evaluation entry point
+│   ├── ⚙️ config.py                            # Hyperparameters and settings
+│   ├── 📥 data_utils.py                        # CSV loading and normalization
+│   ├── 🧠 model_ghef.py                        # GHEF model and offline GPT-2 backbone
+│   ├── 📈 mtfig.py                             # Trend granulation and embeddings
+│   ├── 🕸️ mic_hypergraph.py                    # Affinity scoring and incidence
+│   ├── 🔗 hypergraph_layers.py                 # Hypergraph propagation layers
+│   ├── 🎯 losses.py                            # Forecasting and auxiliary losses
+│   ├── 🏋️ trainer.py                           # Multi-stage training / evaluation
+│   └── 🧱 precompute_granules.py               # Optional granule precomputation
 │
-├── 📊 datasets/                                # Benchmark data (copied in separately)
-│   ├── 🌡️ ETTh1/                               # Hourly transformer temperature
-│   ├── 🌡️ ETTh2/                               # Hourly transformer temperature
-│   ├── ⏱️ ETTm1/                               # 15-min transformer temperature
-│   ├── ⏱️ ETTm2/                               # 15-min transformer temperature
-│   ├── 🌦️ weather/                             # Meteorological observations
-│   ├── ⚡ electricity/                         # Electricity consumption
-│   ├── 🚦 traffic/                             # Road traffic occupancy
-│   └── 📈 M4/                                  # Extra dataset; not used in the main 7 benchmarks
+├── 📊 datasets/                                # 📥 DOWNLOAD FROM GOOGLE DRIVE (local only)
+│   ├── 🌡️ ETTh1/                               # 📄 ETTh1.csv
+│   ├── 🌡️ ETTh2/                               # 📄 ETTh2.csv
+│   ├── ⏱️ ETTm1/                               # 📄 ETTm1.csv
+│   ├── ⏱️ ETTm2/                               # 📄 ETTm2.csv
+│   ├── 🌦️ weather/                             # 📄 weather.csv
+│   ├── ⚡ electricity/                         # 📄 electricity.csv
+│   ├── 🚦 traffic/                             # 📄 traffic.csv
+│   └── 📈 M4/                                  # Optional; not in main benchmarks
 │
-├── 🤗 gpt2_offline/                            # Offline GPT-2 files (copied in separately)
-│   ├── ⚙️ config.json                          # Model architecture configuration
-│   ├── 🧠 model.safetensors                    # Pretrained model weights (Git LFS)
-│   ├── 🧩 merges.txt                           # Byte-pair encoding merge rules
+├── 🤗 gpt2_offline/                            # 📥 DOWNLOAD FROM HUGGING FACE (local only)
+│   ├── ⚙️ config.json                          # GPT-2 configuration
+│   ├── 🧩 merges.txt                           # Tokenizer BPE merges
+│   ├── 🧠 model.safetensors                    # Pretrained weights
 │   ├── 🔤 tokenizer.json                       # Tokenizer definition
 │   ├── 🔧 tokenizer_config.json                # Tokenizer settings
-│   └── 🔠 vocab.json                           # Vocabulary lookup
+│   └── 🔠 vocab.json                           # Tokenizer vocabulary
 │
-└── 📂 outputs/                                 # Created during training (not committed)
+└── 📂 outputs/                                 # Generated experiment outputs (local only)
 ```
 
-> 📌 **Directory note:** The `code/` scripts, `README.md`, dependency file, and Git configuration are included in the starter archive. Copy your actual `datasets/` and `gpt2_offline/` contents into the indicated paths. The `outputs/` directory is generated when experiments run; it does not need to be uploaded.
-
-> 🗃️ **Dataset file convention:** Each supported forecasting dataset is expected at `datasets/<dataset>/<dataset>.csv`, such as `datasets/ETTh1/ETTh1.csv`. Dataset subfolder contents are not enumerated above because only their top-level folder names were provided.
+> 📝 **GitHub vs local:** `code/`, `README.md`, `requirements.txt`, and `.gitignore` are committed. `datasets/`, `gpt2_offline/`, and `outputs/` exist on the researcher's machine after setup and are excluded from version control. All commands below assume they are run from the project root.
 
 ## ⚙️ Requirements
 
@@ -138,25 +195,42 @@ pip install -r requirements.txt
 
 ## 🚀 Quick Start
 
-### 1. 📥 Prepare the data
+### 1. 📥 Get the repository
 
-Ensure each benchmark has the expected CSV path, for example:
+Clone the GitHub repository (replace the placeholder with your actual repository URL), or download its source-code ZIP:
 
-```text
-🌡️ datasets/ETTh1/ETTh1.csv
-⏱️ datasets/ETTm2/ETTm2.csv
-⚡ datasets/electricity/electricity.csv
+```bash
+git clone <YOUR_GITHUB_REPOSITORY_URL>
+cd GHEF
 ```
 
-The loader reads numeric channels from each CSV and drops a nonnumeric first column (such as a timestamp) when present.
+### 2. ⚙️ Install dependencies
 
-### 2. 🤗 Prepare the offline GPT-2 checkpoint
+From the `GHEF/` root directory:
 
-Ensure that `gpt2_offline/config.json` and `gpt2_offline/model.safetensors` are available. The model is loaded from the local directory using `local_files_only=True`; training does **not** download GPT-2 automatically.
+```bash
+python -m venv .venv
+source .venv/bin/activate   # Windows: .venv\Scripts\activate
+pip install -r requirements.txt
+```
 
-### 3. ▶️ Run a single experiment
+### 3. 📊 Download the datasets from Google Drive
 
-Run this command **from the repository root**:
+Follow [**dataset download instructions**](#-datasets) above. Place all seven benchmark CSV files under their matching `datasets/<dataset>/` subfolders.
+
+### 4. 🤗 Download the offline GPT-2 files from Hugging Face
+
+Follow [**🤗 Offline GPT-2 Checkpoint**](#-offline-gpt-2-checkpoint) above. Download the six files listed there and save them directly inside `gpt2_offline/`. Do **not** nest another `gpt2/` folder inside it.
+
+Before running, you can check that the local checkpoint can be loaded:
+
+```bash
+python -c "from transformers import GPT2Model; GPT2Model.from_pretrained('./gpt2_offline', local_files_only=True); print('Local GPT-2 ready')"
+```
+
+### 5. ▶️ Run one dataset and one horizon
+
+Run the following command **from the repository root**:
 
 ```bash
 python code/main.py \
@@ -169,9 +243,9 @@ python code/main.py \
   --device cuda
 ```
 
-For a CPU-only installation, change `--device cuda` to `--device cpu` (expect much longer execution time) and, if needed, add `--num_workers 0 --no_amp`.
+For CPU-only use, replace `--device cuda` with `--device cpu` (training will be substantially slower), and consider `--num_workers 0 --no_amp`.
 
-### 4. 🧪 Run the seven-dataset benchmark
+### 6. 🧪 Run all seven datasets and four horizons
 
 ```bash
 python code/main.py \
@@ -185,28 +259,28 @@ python code/main.py \
   --device cuda
 ```
 
-This executes the available training pipeline for the selected dataset–horizon combinations. **It is not guaranteed to reproduce the archived paper numbers**; see the configuration differences below. High-dimensional datasets may require substantial GPU memory and training time.
+These commands execute the released code, but they do **not** guarantee exact reproduction of the paper's archived measurements. In particular, the current code contains dataset-level overrides; see [Reproducibility Notes](#-reproducibility-notes).
 
-### 5. 🔧 Useful command-line options
+### 7. 🔧 Common command-line arguments
 
 | ⚙️ Argument | 📝 Meaning | 💡 Code default |
 |:--|:--|:--|
 | `--datasets` | One or more benchmark names | All seven benchmarks |
-| `--horizons` | Prediction lengths | `96 192 336 720` |
-| `--lookback` | Input sequence length | `512` |
+| `--horizons` | Forecast lengths | `96 192 336 720` |
+| `--lookback` | Historical sequence length | `512` |
 | `--batch` | Batch size | `32` |
 | `--lr` | Learning rate | `2e-4` |
-| `--epochs` | Stage-3 maximum epochs | `150` |
+| `--epochs` | Maximum Stage-3 epochs | `150` |
 | `--stage1_epochs` | Stage-1 epochs | `20` |
 | `--stage2_epochs` | Stage-2 epochs | `20` |
 | `--patience` | Early-stopping patience | `10` |
-| `--topk` | Channel-association neighbor budget | `16` |
-| `--device` | Training device | `cuda` |
-| `--no_stage1` / `--no_stage2` / `--no_stage3` | Skip the named stage | All stages enabled |
+| `--topk` | Neighbor-selection budget | `16` |
+| `--device` | Device | `cuda` |
+| `--no_stage1` / `--no_stage2` / `--no_stage3` | Disable selected training stages | All enabled |
 
-**💡 Tip:** Detailed settings, including the GPT-2 layer count, model adaptation, loss weights, and dataset-specific overrides, are defined in [`code/config.py`](code/config.py). Skipping a training stage is **not** the same as loading an existing checkpoint for test-only evaluation.
+For settings not exposed on the command line, see [`code/config.py`](code/config.py). Disabling a stage does **not** load a pretrained training-stage checkpoint automatically.
 
-### 6. 🧱 Optional MT-FIG precomputation
+### 8. 🧱 Optional MT-FIG precomputation
 
 ```bash
 python code/precompute_granules.py \
@@ -217,7 +291,7 @@ python code/precompute_granules.py \
   --device cuda
 ```
 
-This exports `.pt` files containing granules and masks for each split. It is a **separate utility**; `code/main.py` does not read these exports as a prerequisite for training.
+The utility writes cached `.pt` files separately; the training script does not require the precomputed cache.
 
 ## 📁 Outputs and Evaluation
 
@@ -227,9 +301,9 @@ After running the main script, prediction errors and checkpoints are written und
 📂 outputs/
 ├── 🌡️ ETTh1/
 │   └── ⏳ H96/
-│       ├── 💾 stage1_best.pt
-│       ├── 💾 stage2_best.pt
-│       └── 💾 stage3_best.pt
+│       ├── 💾 stage1.pt
+│       ├── 💾 stage2.pt
+│       └── 💾 stage3.pt
 ├── 📊 results_ETTh1.json
 └── 📋 results_all.json
 ```
@@ -238,7 +312,7 @@ After running the main script, prediction errors and checkpoints are written und
 - 📊 **MSE** — Mean Squared Error.
 - 💾 `results_<dataset>.json` stores per-horizon scores and their arithmetic average.
 - 🗃️ `results_all.json` consolidates the evaluated datasets.
-- 🧠 `stage*_best.pt` checkpoints store the selected validation-best model weights for each enabled training stage.
+- 🧠 `stage*.pt` checkpoints store the selected validation-best model weights for each enabled training stage.
 
 ## 🔬 Reproducibility Notes
 
@@ -253,17 +327,15 @@ The paper and the present code snapshot are **not configuration-identical**. Bef
 
 Accordingly, the included commands document **how to run this released code**, while the archived tables in the paper should be read as separately reported evidence.
 
-## ☁️ Uploading Large Files to GitHub
+## ☁️ Large Files and GitHub Storage
 
-The offline `model.safetensors` checkpoint shown in the provided directory is approximately **475 MiB**, above GitHub's ordinary **100 MiB per-file** Git limit. Use [Git Large File Storage (Git LFS)](https://git-lfs.com/) **before** adding the model checkpoint:
+**🚫 Do not upload `datasets/` or `gpt2_offline/` to this GitHub repository.** They are intentionally distributed separately to keep the code repository small and easy to clone.
 
-```bash
-git lfs install
-git lfs track "gpt2_offline/*.safetensors"
-git add .gitattributes
-```
+- 📊 **Datasets:** Download from the [dataset download instructions](#-datasets) (link provided by the repository owner).
+- 🤗 **GPT-2:** Download the six required files from [Hugging Face](https://huggingface.co/openai-community/gpt2/tree/main).
+- 🚫 **Git exclusion:** `.gitignore` excludes `/datasets/`, `/gpt2_offline/`, checkpoints, and generated outputs. Verify that the large files are not being staged with `git status` before pushing.
 
-Use Git LFS for oversized dataset files as needed. Collaborators who clone the repository should also have Git LFS installed and run `git lfs pull` if large files were not downloaded automatically.
+**💡 No Git LFS installation is required** for the recommended setup, because pretrained weights and datasets are not committed to the repository.
 
 ## 📝 Citation
 
