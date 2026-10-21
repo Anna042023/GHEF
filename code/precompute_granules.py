@@ -15,7 +15,7 @@ def parse_args():
     p.add_argument("--dataset", type=str, required=True)
     p.add_argument("--out_dir", type=str, required=True, help="where to save cached granules")
     p.add_argument("--device", type=str, default="cuda")
-    p.add_argument("--lookback", type=int, default=512)  # ✅对齐论文
+    p.add_argument("--lookback", type=int, default=512)  
     return p.parse_args()
 
 @torch.no_grad()
@@ -31,7 +31,7 @@ def main():
     )
     T, D = x_all.shape
 
-    # ✅ 用与训练一致的切分逻辑（ETT 固定 border / 其他 ratio）
+
     tr_idx, va_idx, te_idx = build_splits_indices(
         T,
         split_ratio=cfg.split_ratio,
@@ -42,14 +42,14 @@ def main():
 
     splits = {"train": tr_idx, "val": va_idx, "test": te_idx}
 
-    # granules 构建基于 RIN/RevIN 后的 x（与你论文描述一致的方向）
+    # granules 构建基于 RIN/RevIN 后的 x
     rin = ReverseInstanceNorm(D).to(args.device)
     rin.eval()
 
     os.makedirs(args.out_dir, exist_ok=True)
 
     for split_name, indices in splits.items():
-        ds = SlidingWindowDataset(x_all, indices, lookback=cfg.lookback, horizon=1)  # horizon 占位
+        ds = SlidingWindowDataset(x_all, indices, lookback=cfg.lookback, horizon=1)  
         B = 64
         all_gran, all_gmask = [], []
 
