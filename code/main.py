@@ -17,10 +17,10 @@ from trainer import train_stage1, train_stage2, train_stage3, evaluate
 
 def parse_args():
     p = argparse.ArgumentParser()
-    p.add_argument("--data_root", type=str, default="/data/LiFeiFei/GHEF/datasets/")
+    p.add_argument("--data_root", type=str, default="/data/xxx/GHEF/datasets/")
     p.add_argument("--out_dir", type=str, default="./outputs")
     p.add_argument("--device", type=str, default="cuda")
-    p.add_argument("--gpt2_name", type=str, default="/data/LiFeiFei/GHEF/gpt2_offline")
+    p.add_argument("--gpt2_name", type=str, default="/data/xxx/GHEF/gpt2_offline")
 
     p.add_argument("--datasets", type=str, nargs="*", default=[
         "ETTh1", "ETTh2", "ETTm1", "ETTm2", "weather", "electricity", "traffic"
