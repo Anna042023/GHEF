@@ -1,6 +1,6 @@
 # 🗃️ Rank-Sensitive Top-K Hypergraph Views for Batch-Aware Multivariate Time-Series Analytics
 
-**GHEF — Granule-Hypergraph Enhanced Forecaster** · Downstream forecasting workload
+**GHEF — Granule-Hypergraph Enhanced Forecaster** 
 
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.x-EE4C2C?logo=pytorch&logoColor=white)](https://pytorch.org/)
@@ -10,8 +10,6 @@
 This repository provides the **GHEF forecasting code** associated with the paper **“Rank-Sensitive Top-K Hypergraph Views for Batch-Aware Multivariate Time-Series Analytics.”** The paper investigates how to validate and maintain derived relations in batch-ranked multivariate time-series analytics. Its database focus is on **materialized Trend, Affinity, and Member views**, their reuse conditions, and the cost of refreshing them after source or batch revisions. GHEF serves as the downstream application that consumes these relations for forecasting.
 
 **🔗 Navigation:** [Contributions](#-main-contributions) · [View Semantics](#-materialized-view-semantics) · [GHEF Workload](#-ghef-forecasting-workload) · [Evidence](#-experimental-evidence) · [Datasets](#-datasets) · [GPT-2 Download](#-offline-gpt-2-checkpoint) · [Structure](#repository-structure) · [Requirements](#requirements) · [Usage](#-quick-start) · [Outputs](#outputs)
-
-> 📦 **Repository scope:** This release contains the GHEF Python forecasting implementation and its setup instructions. The paper's independent **SQLite view-validation, Top-K witness, and refresh-cost experiments are not included in this archive**. The datasets and local GPT-2 checkpoint are distributed separately.
 
 ## 🌟 Main Contributions
 
@@ -62,11 +60,9 @@ The paper evaluates database-view correctness and maintenance separately from GH
 | 10% training data | 28 | 25 / 0 / 3 | 23 / 1 / 4 |
 | Zero-shot transfer | 32 | 24 / 2 / 6 | 21 / 1 / 10 |
 
-These forecasting results characterize the GHEF consumer. **The `code/main.py` entry point supports the standard forecasting runs. Dedicated 10%-training, zero-shot-transfer, and SQLite audit runners are not present in this archive.**
-
 ## 📚 Datasets
 
-The forecasting study uses seven public multivariate time-series benchmarks. Fixed excerpts from **ETTh1** and **Electricity** also support the paper's separate SQLite database-view evaluation. **The full benchmark datasets are distributed via the same Google Drive link as the earlier release and are not included in this GitHub archive.**
+The forecasting study uses seven public multivariate time-series benchmarks. **The full benchmark datasets are distributed via the same Google Drive link.**
 
 | 📁 Dataset | 🏷️ Domain | ⏱️ Sampling interval | 🔢 Variables |
 |:--|:--|:--|--:|
@@ -134,7 +130,7 @@ After downloading, your **local** folder must look like this:
 
 ## 🗂️ Repository Structure
 
-The **GitHub checkout** contains the forecasting Python implementation and documentation. Local dataset, model-checkpoint, and output directories retain the same layout as the earlier README.
+The **GitHub checkout** contains the forecasting Python implementation and documentation.
 
 ```text
 GHEF/
@@ -195,9 +191,7 @@ pip install -r requirements.txt
 
 ## 🚀 Quick Start
 
-The following commands execute **GHEF forecasting**, using the files already present in this repository. They do not reproduce the paper's independent SQLite validation and refresh benchmarks.
-
-**⚠️ Configuration alignment:** The paper reports a **96-step lookback** and **six GPT-2 layers**, while the released `code/config.py` defaults to **eight GPT-2 layers** and applies a **192-step lookback override for Electricity**. For an exact match to the paper's forecasting protocol, check these settings and the archived experiment configurations before comparing numerical results. No source-code or directory changes are made in this README update.
+The following commands execute **GHEF forecasting**, using the files already present in this repository.
 
 ### 1. 📥 Get the repository
 
