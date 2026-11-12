@@ -7,7 +7,7 @@
 [![Transformers](https://img.shields.io/badge/%F0%9F%A4%97-Transformers-FFD21E)](https://huggingface.co/docs/transformers/)
 [![Research](https://img.shields.io/badge/Research-Time--Series%20Data%20Management-527A9B)](#-main-contributions)
 
-This repository provides the **GHEF forecasting code** associated with the paper **“Rank-Sensitive Top-K Hypergraph Views for Batch-Aware Multivariate Time-Series Analytics.”** The paper investigates how to validate and maintain derived relations in batch-ranked multivariate time-series analytics. Its database focus is on **materialized Trend, Affinity, and Member views**, their reuse conditions, and the cost of refreshing them after source or batch revisions. GHEF serves as the downstream application that consumes these relations for forecasting.
+This repository provides the **GHEF forecasting code** associated with the paper **“Rank-Sensitive Top-K Hypergraph Views for Batch-Aware Multivariate Time-Series Analytics.”** The paper investigates how to validate and maintain derived relations in batch-ranked multivariate time-series analytics. 
 
 **🔗 Navigation:** [Contributions](#-main-contributions) · [View Semantics](#-materialized-view-semantics) · [GHEF Workload](#-ghef-forecasting-workload) · [Evidence](#-experimental-evidence) · [Datasets](#-datasets) · [GPT-2 Download](#-offline-gpt-2-checkpoint) · [Structure](#repository-structure) · [Requirements](#requirements) · [Usage](#-quick-start) · [Outputs](#outputs)
 
