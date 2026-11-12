@@ -1,38 +1,72 @@
-# 📈 Window-Scoped Trend Relations for Multivariate Time-Series Analytics
+# 🗃️ Rank-Sensitive Top-K Hypergraph Views for Batch-Aware Multivariate Time-Series Analytics
 
-**GHEF — Granule-Hypergraph Enhanced Forecaster**
+**GHEF — Granule-Hypergraph Enhanced Forecaster** · Downstream forecasting workload
 
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.x-EE4C2C?logo=pytorch&logoColor=white)](https://pytorch.org/)
 [![Transformers](https://img.shields.io/badge/%F0%9F%A4%97-Transformers-FFD21E)](https://huggingface.co/docs/transformers/)
-[![Task](https://img.shields.io/badge/Task-Multivariate%20Forecasting-5B8DEF)](#-overview)
+[![Research](https://img.shields.io/badge/Research-Time--Series%20Data%20Management-527A9B)](#-main-contributions)
 
-This repository contains the **GHEF forecasting implementation** associated with the paper **“Window-Scoped Trend Relations for Multivariate Time-Series Analytics.”** The paper studies how historical time windows define derived trend records, channel affinities, and group memberships, using GHEF as a forecasting consumer.
+This repository provides the **GHEF forecasting code** associated with the paper **“Rank-Sensitive Top-K Hypergraph Views for Batch-Aware Multivariate Time-Series Analytics.”** The paper investigates how to validate and maintain derived relations in batch-ranked multivariate time-series analytics. Its database focus is on **materialized Trend, Affinity, and Member views**, their reuse conditions, and the cost of refreshing them after source or batch revisions. GHEF serves as the downstream application that consumes these relations for forecasting.
 
-**🔗 Navigation:** [Contributions](#-main-contributions) · [Method](#-method-overview) · [Datasets](#-datasets) · [GPT-2 Download](#-offline-gpt-2-checkpoint) · [Structure](#repository-structure) · [Requirements](#requirements) · [Usage](#-quick-start)  · [Outputs](#outputs)
+**🔗 Navigation:** [Contributions](#-main-contributions) · [View Semantics](#-materialized-view-semantics) · [GHEF Workload](#-ghef-forecasting-workload) · [Evidence](#-experimental-evidence) · [Datasets](#-datasets) · [GPT-2 Download](#-offline-gpt-2-checkpoint) · [Structure](#repository-structure) · [Requirements](#requirements) · [Usage](#-quick-start) · [Outputs](#outputs)
 
-
-> 📦 **Lightweight GitHub release:** This repository provides the source code and instructions only. The large `datasets/` and `gpt2_offline/` directories are **not included in GitHub**. Download them separately following the instructions below before running any experiments.
+> 📦 **Repository scope:** This release contains the GHEF Python forecasting implementation and its setup instructions. The paper's independent **SQLite view-validation, Top-K witness, and refresh-cost experiments are not included in this archive**. The datasets and local GPT-2 checkpoint are distributed separately.
 
 ## 🌟 Main Contributions
 
-- **🔎 Window-scoped query contract.** Characterizes the inputs and identities of derived `Segment`, `Affinity`, and `Member` relations, including source revision, time interval, selected channels, normalization, and construction settings.
-- **🕸️ Explicit group semantics.** Separates trend-based pair scoring, mutual-neighbor selection, and group enumeration. The paper shows why the same pair support need not imply the same hypergraph incidence relation and analyzes the work associated with relation construction.
-- **🧪 Separated empirical evidence.** Connects the archived GHEF forecasting results with independent finite-graph checks and SQLite experiments on synthetic audit records, without treating those checks as end-to-end GHEF query acceleration.
+- **🔎 Stage-specific reuse conditions.** Defines separate identities and validity requirements for fitted `Trend`, batch-ranked `Affinity`, and weighted `Member` views. Reusing an Affinity score requires agreement of the ordered rank-bin inputs under fixed estimation and numerical rules. Reusing Member results additionally depends on candidate domains, tie decisions, Softmax weights, and write order.
+- **🕸️ Joint Top-K consistency.** Distinguishes individually possible memberships from a globally realizable relation. For fixed scores and prescribed choices within boundary ties, selected-before-rejected precedence constraints admit a shared tie priority exactly when their directed graph is acyclic. Weighted results require further checks of normalization and ordered writes.
+- **⚙️ Cost-aware incremental refresh.** Compares validation, cached reads, recomputation, and writes with full reconstruction after batch revisions. The analysis identifies cases where rank changes make selective refresh ineffective and cases where sparse changes allow substantial savings.
 
-The reported forecasting study covers **seven benchmark datasets** and **four prediction horizons**. Relative to CVC, the archived results show lower MAE in **22 of 28** dataset–horizon comparisons, with one tie and five losses.
+## 🔍 Materialized View Semantics
 
-## 🧩 Method Overview
+The paper models a batch-aware analytical pipeline with three derived relations. Each view has a distinct identity and reuse boundary.
 
-The GHEF forecasting pipeline has three components:
+| 🧱 View | 📄 Derived result | 🔐 Relevant dependencies |
+|:--|:--|:--|
+| **Trend** | Fitted temporal descriptors and MT-FIG records | Source revision, window or batch identity, alignment, normalization, fitting scope, channel, and segment-local origin |
+| **Affinity** | Batch-ranked cross-channel scores | Trend inputs, candidate screening, ordered rank bins, fixed 16-bin NMI estimator, and numerical/symmetrization policy |
+| **Member** | Selected Top-K neighbors and weighted hypergraph incidence | Affinity scores, full candidate domain, Top-K and tie policy, Softmax normalization, selection order, and symmetric writes |
 
-- **📉 GSA:** Represents local trends with multi-trend fuzzy information granules (MT-FIGs), including slope, intercept, fluctuation, and duration.
-- **🔗 HDL:** Builds channel-dependency representations from trend-based affinities and propagates features through a hypergraph.
-- **🧠 HGF:** Fuses temporal and relational representations for multivariate forecasting, using an offline GPT-2 backbone and trainable adaptation components.
-  
+A neighboring batch replacement can change the rank encoding used by an unchanged channel pair. The original pair values may agree while its cached Affinity score no longer satisfies the reuse contract. Equal pair scores also do not by themselves certify an identical weighted Member relation.
+
+**🔄 Refresh decision:** check stage identities and consumed rank codes, validate the affected Top-K selections and weighted writes, then compare the cost of selective maintenance against rebuilding the required view. The relevant dependencies depend on whether the query requests scores, membership support, or final stored weights.
+
+## 🧩 GHEF Forecasting Workload
+
+The forecasting consumer follows the three-stage GHEF pipeline shown in the paper's Figure 2:
+
+- **📉 GSA — Granulation and Adaptation:** Converts normalized histories into multi-trend fuzzy information granules (MT-FIGs), with slope, intercept, dispersion, and duration, and aligns the trend representation with a pretrained GPT-2 model.
+- **🕸️ HDL — Hypergraph Dependency Learning:** Builds channel affinities, performs center-wise Top-K selection, and constructs a weighted incidence representation for hypergraph feature propagation.
+- **🔀 HGF — Hypergraph-Guided Fusion:** Combines trend and hypergraph representations through bidirectional cross-attention and reconstructs future values from predicted granule parameters.
+
+The forecasting formulation also uses an MIC-based affinity prior. **The fixed 16-bin rank-NMI scores evaluated in the SQLite view experiments are a separate, explicitly defined database scoring workload**. Their agreement and reuse results should not be interpreted as end-to-end forecasting speedups.
+
+## 🧪 Experimental Evidence
+
+The paper evaluates database-view correctness and maintenance separately from GHEF forecasting quality.
+
+| 🔬 Evaluation | 🧾 Setup | 📊 Reported finding |
+|:--|:--|:--|
+| **Score and Member agreement (RQ1)** | Frozen 7-channel ETTh1 and 64-channel Electricity excerpts, with shared encoded inputs and selection policies | Maximum SQL-to-reference score differences are **1.19 × 10⁻⁷** and **2.38 × 10⁻⁷**, respectively. Shared selections produce matching Member hashes. |
+| **Batch revision and refresh (RQ2)** | Electricity replacement over 64 channels | **2,010 / 2,016** candidate pairs are flagged for reassessment. Selective refresh has no consistent latency advantage in this near-global-change case. |
+| **Sparse revision (RQ2)** | Constructed 64-channel input with four changed channels | Median selective-refresh time is **20.8 ms**, compared with **131.6 ms** for a full refresh under the reported matched protocol. |
+| **Query access** | SQLite indexed lookup on synthetic graph summaries | A selective range query shows a **35.72×** scan-to-index speed ratio. The benefit decreases as the number of returned rows grows. |
+
+**📈 Downstream forecasting (RQ3).** GHEF is evaluated on seven multivariate benchmarks at horizons **96, 192, 336, and 720**, with MAE and MSE. Against CVC, the paper reports the following counts of cases with lower, tied, or higher errors:
+
+| Protocol | Cases | MAE (lower / tied / higher) | MSE (lower / tied / higher) |
+|:--|--:|:--:|:--:|
+| Standard forecasting | 28 | 22 / 1 / 5 | 18 / 0 / 10 |
+| 10% training data | 28 | 25 / 0 / 3 | 23 / 1 / 4 |
+| Zero-shot transfer | 32 | 24 / 2 / 6 | 21 / 1 / 10 |
+
+These forecasting results characterize the GHEF consumer. **The `code/main.py` entry point supports the standard forecasting runs. Dedicated 10%-training, zero-shot-transfer, and SQLite audit runners are not present in this archive.**
+
 ## 📚 Datasets
 
-Seven public multivariate time-series benchmarks are used in the paper. **Datasets are distributed separately via Google Drive, not included in this GitHub repository.** 
+The forecasting study uses seven public multivariate time-series benchmarks. Fixed excerpts from **ETTh1** and **Electricity** also support the paper's separate SQLite database-view evaluation. **The full benchmark datasets are distributed via the same Google Drive link as the earlier release and are not included in this GitHub archive.**
 
 | 📁 Dataset | 🏷️ Domain | ⏱️ Sampling interval | 🔢 Variables |
 |:--|:--|:--|--:|
@@ -44,7 +78,7 @@ Seven public multivariate time-series benchmarks are used in the paper. **Datase
 | `electricity` | Electricity consumption | 1 hour | 321 |
 | `traffic` | Road traffic occupancy | 1 hour | 862 |
 
-**🎯 Forecast settings in the paper:** lookback length **96**, with horizons **96 / 192 / 336 / 720**. The reported error metrics are **MAE** and **MSE** (lower is better).
+**🎯 Forecast protocol reported in the paper:** lookback length **96** and prediction horizons **96 / 192 / 336 / 720**. Error metrics are **MAE** and **MSE** (lower is better). The forecasting evaluation is distinct from the SQLite view-maintenance measurements.
 
 ### ☁️ Download the datasets
 
@@ -100,7 +134,7 @@ After downloading, your **local** folder must look like this:
 
 ## 🗂️ Repository Structure
 
-The **GitHub checkout** contains the Python implementation and documentation.
+The **GitHub checkout** contains the forecasting Python implementation and documentation. Local dataset, model-checkpoint, and output directories retain the same layout as the earlier README.
 
 ```text
 GHEF/
@@ -161,9 +195,18 @@ pip install -r requirements.txt
 
 ## 🚀 Quick Start
 
+The following commands execute **GHEF forecasting**, using the files already present in this repository. They do not reproduce the paper's independent SQLite validation and refresh benchmarks.
+
+**⚠️ Configuration alignment:** The paper reports a **96-step lookback** and **six GPT-2 layers**, while the released `code/config.py` defaults to **eight GPT-2 layers** and applies a **192-step lookback override for Electricity**. For an exact match to the paper's forecasting protocol, check these settings and the archived experiment configurations before comparing numerical results. No source-code or directory changes are made in this README update.
+
 ### 1. 📥 Get the repository
 
-Clone the GitHub repository.
+Clone the GitHub repository:
+
+```bash
+git clone https://github.com/Anna042023/GHEF.git
+cd GHEF
+```
 
 ### 2. ⚙️ Install dependencies
 
@@ -227,7 +270,7 @@ python code/precompute_granules.py \
 
 ## 📁 Outputs and Evaluation
 
-After running the main script, prediction errors and checkpoints are written under the selected `--out_dir` (default `./outputs`):
+After running the **forecasting** entry point, prediction errors and checkpoints are written under the selected `--out_dir` (default `./outputs`):
 
 ```text
 📂 outputs/
